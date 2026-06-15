@@ -4,17 +4,17 @@ import ProductGallery from "@/components/product/ProductGallery";
 import ProductInfo from "@/components/product/ProductInfo";
 import ProductTabs from "@/components/product/ProductTabs";
 import RelatedProducts from "@/components/product/RelatedProducts";
-import { getWordPressProductBySlug } from "@/lib/wordpress";
 import { mapWordPressProduct } from "@/lib/mapWordPressProduct";
+import { getWordPressMediaById, getWordPressProductBySlug } from "@/lib/wordpress";
 
 type ProductPageProps = {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 };
 
 export default async function ProductPage({ params }: ProductPageProps) {
-  const { slug } = params;
+  const { slug } = await params;
 
   const wpProduct = await getWordPressProductBySlug(slug);
 
@@ -24,8 +24,20 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   const product = mapWordPressProduct(wpProduct);
 
+  if (typeof wpProduct.acf !== "undefined" && !Array.isArray(wpProduct.acf)) {
+    const galleryId = wpProduct.acf.product_gallery;
+
+    if (typeof galleryId === "number") {
+      const galleryImage = await getWordPressMediaById(galleryId);
+
+      if (galleryImage) {
+        product.images = [...product.images, galleryImage];
+      }
+    }
+  }
+
   return (
-    <main>
+    <main className="bg-white text-black">
       <ProductBreadcrumb name={product.name} />
 
       <section className="px-5 py-10 md:px-10 md:py-14">

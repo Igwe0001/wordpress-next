@@ -1,78 +1,62 @@
 import { Product } from "@/data/products";
+import { WordPressProduct, WordPressProductACF } from "@/lib/wordpressTypes";
 
-function stripHtml(value: unknown): string {
-  if (typeof value !== "string") return "";
-  return value.replace(/<[^>]+>/g, "").trim();
+function cleanHTML(value?: string) {
+  return value?.replace(/<[^>]*>/g, "").trim() || "";
 }
 
-function normalizeTags(value: unknown): string[] {
-  if (typeof value === "string") {
-    return value
-      .split(",")
-      .map((tag) => tag.trim())
-      .filter(Boolean);
+function getACF(acf: WordPressProduct["acf"]): WordPressProductACF {
+  if (!acf || Array.isArray(acf)) {
+    return {};
   }
 
-  if (Array.isArray(value)) {
-    return value.map((item) => String(item).trim()).filter(Boolean);
+  return acf;
+}
+
+function toNumber(value?: number | string) {
+  if (value === undefined || value === null || value === "") {
+    return 0;
+  }
+
+  return Number(value);
+}
+
+function getGalleryImages(gallery: WordPressProductACF["product_gallery"]): string[] {
+  if (!gallery) {
+    return [];
+  }
+
+  if (typeof gallery === "string") {
+    return gallery ? [gallery] : [];
   }
 
   return [];
 }
 
-function getFeaturedImage(wpProduct: any): string {
-  const featured = wpProduct._embedded?.["wp:featuredmedia"]?.[0];
-  return (
-    featured?.source_url ||
-    featured?.media_details?.sizes?.full?.source_url ||
-    featured?.media_details?.sizes?.large?.source_url ||
-    ""
-  );
-}
+export function mapWordPressProduct(wpProduct: WordPressProduct): Product {
+  const acf = getACF(wpProduct.acf);
 
-function getCategoryInfo(wpProduct: any) {
-  const termGroups = wpProduct._embedded?.["wp:term"];
-  const firstTerm = Array.isArray(termGroups) ? termGroups.flat(1)[0] : null;
+  const featuredImage = wpProduct._embedded?.["wp:featuredmedia"]?.[0]?.source_url || "";
 
-  return {
-    name: firstTerm?.name || wpProduct.acf?.category || "Product",
-    slug: firstTerm?.slug || wpProduct.acf?.category_slug,
-  };
-}
+  const galleryImages = getGalleryImages(acf.product_gallery);
 
-export function mapWordPressProduct(wpProduct: any): Product {
-  const rawDescription = wpProduct.acf?.short_description || wpProduct.excerpt?.rendered || "";
-  const rawLongDescription = wpProduct.acf?.long_description || wpProduct.content?.rendered || rawDescription;
-  const featuredImage = getFeaturedImage(wpProduct);
-  const galleryImages = Array.isArray(wpProduct.acf?.gallery)
-    ? wpProduct.acf.gallery
-        .map((item: any) => {
-          if (typeof item === "string") return item;
-          if (item?.url) return item.url;
-          return null;
-        })
-        .filter(Boolean)
-    : [];
+  const categoryData = wpProduct._embedded?.["wp:term"]?.[0]?.[0];
+
   const images = [featuredImage, ...galleryImages].filter(Boolean);
-  const categoryInfo = getCategoryInfo(wpProduct);
-  const acfTags = normalizeTags(wpProduct.acf?.tags);
-  const embeddedTagNames = Array.isArray(wpProduct._embedded?.["wp:term"])
-    ? wpProduct._embedded["wp:term"].flat(1).map((term: any) => String(term?.name || "").trim()).filter(Boolean)
-    : [];
 
   return {
-    id: Number(wpProduct.id || 0),
-    name: stripHtml(wpProduct.title?.rendered) || stripHtml(wpProduct.title) || "Untitled Product",
-    slug: String(wpProduct.slug || ""),
-    category: categoryInfo.name,
-    categorySlug: categoryInfo.slug,
-    description: rawDescription,
-    longDescription: stripHtml(rawLongDescription) || "No description available.",
-    price: Number(wpProduct.acf?.price || wpProduct.price || 0),
-    oldPrice: wpProduct.acf?.old_price ? Number(wpProduct.acf.old_price) : undefined,
-    badge: wpProduct.acf?.badge || undefined,
-    sku: String(wpProduct.acf?.sku || wpProduct.sku || "").trim(),
-    tags: acfTags.length > 0 ? acfTags : embeddedTagNames,
-    images: images.length > 0 ? images : [],
+    id: wpProduct.id,
+    name: cleanHTML(wpProduct.title?.rendered) || "Untitled Product",
+    slug: wpProduct.slug,
+    category: categoryData?.name || "Uncategorized",
+    categorySlug: categoryData?.slug || "",
+    description: acf.short_description || cleanHTML(wpProduct.excerpt?.rendered) || "No short description available.",
+    longDescription: acf.long_description || cleanHTML(wpProduct.content?.rendered) || "No product description available.",
+    price: toNumber(acf.price),
+    oldPrice: acf.old_price ? toNumber(acf.old_price) : undefined,
+    badge: acf.badge || "",
+    sku: acf.sku || `PRODUCT-${wpProduct.id}`,
+    tags: categoryData?.name ? [categoryData.name] : [],
+    images,
   };
 }

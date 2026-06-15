@@ -32,12 +32,14 @@ export default function ProductCard({ product }: ProductCardProps) {
       <div className="p-5">
         <h3 className="text-2xl font-semibold text-[#3A3A3A]">{product.name}</h3>
 
-        <p className="mt-2 line-clamp-2 text-[#898989]" dangerouslySetInnerHTML={{ __html: product.description }} />
+        <p className="mt-2 line-clamp-2 text-[#898989]">{product.description}</p>
 
         <div className="mt-3 flex items-center gap-4">
-          <span className="font-semibold text-[#3A3A3A]">{formatCurrency(product.price)}</span>
+          <span className="font-semibold text-[#3A3A3A]">{product.price > 0 ? formatCurrency(product.price) : "Price unavailable"}</span>
 
-          {product.oldPrice && <span className="text-sm text-[#B0B0B0] line-through">{formatCurrency(product.oldPrice)}</span>}
+          {product.oldPrice && product.oldPrice > 0 && (
+            <span className="text-sm text-[#B0B0B0] line-through">{formatCurrency(product.oldPrice)}</span>
+          )}
         </div>
       </div>
     </Link>

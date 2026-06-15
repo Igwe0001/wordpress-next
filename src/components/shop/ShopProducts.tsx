@@ -4,9 +4,7 @@ import { mapWordPressProduct } from "@/lib/mapWordPressProduct";
 
 export default async function ShopProducts() {
   const wpProducts = await getWordPressProducts();
-  const products = wpProducts
-    .map(mapWordPressProduct)
-    .filter((product) => product.slug);
+  const products = wpProducts.map(mapWordPressProduct).filter((product) => product.slug);
 
   return (
     <section className="bg-white px-5 py-16 md:px-10">

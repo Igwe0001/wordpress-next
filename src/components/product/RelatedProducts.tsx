@@ -1,7 +1,7 @@
 import Link from "next/link";
 import ProductCard from "@/components/products/ProductCard";
-import { getWordPressProducts } from "@/lib/wordpress";
 import { mapWordPressProduct } from "@/lib/mapWordPressProduct";
+import { getWordPressProducts } from "@/lib/wordpress";
 
 type RelatedProductsProps = {
   currentProductSlug: string;
@@ -12,7 +12,7 @@ export default async function RelatedProducts({ currentProductSlug }: RelatedPro
 
   const relatedProducts = wpProducts
     .map(mapWordPressProduct)
-    .filter((product) => product.slug && product.slug !== currentProductSlug)
+    .filter((product) => product.slug !== currentProductSlug)
     .slice(0, 4);
 
   return (

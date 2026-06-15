@@ -43,7 +43,9 @@ Please provide more information.`,
         <span className="border-l border-[#9F9F9F] pl-4 text-sm text-[#9F9F9F]">5 Customer Reviews</span>
       </div>
 
-      <p className="mt-5 max-w-md text-sm leading-7 text-black">{product.longDescription || product.description || "No long description available."}</p>
+      <p className="mt-5 max-w-md text-sm leading-7 text-black">
+        {product.longDescription || product.description || "No long description available."}
+      </p>
 
       {/* WhatsApp Order Button */}
 
