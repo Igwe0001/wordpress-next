@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import ProductCard from "@/components/products/ProductCard";
 import ShopBenefits from "@/components/shop/ShopBenefits";
 import ShopHero from "@/components/shop/ShopHero";

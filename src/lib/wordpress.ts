@@ -8,12 +8,23 @@ if (!API_URL) {
 }
 
 export async function getWordPressProducts(): Promise<WordPressProduct[]> {
-  const res = await fetch(`${API_URL}/products?_embed&per_page=100`, {
-    next: { revalidate: 60 },
+  const url = `${API_URL}/products?_embed&per_page=100`;
+
+  const res = await fetch(url, {
+    cache: "no-store",
   });
 
   if (!res.ok) {
-    throw new Error("Failed to fetch WordPress products");
+    const errorText = await res.text();
+
+    console.error("Failed WordPress products fetch:", {
+      url,
+      status: res.status,
+      statusText: res.statusText,
+      errorText,
+    });
+
+    throw new Error(`Failed to fetch WordPress products: ${res.status}`);
   }
 
   return res.json() as Promise<WordPressProduct[]>;
@@ -34,12 +45,23 @@ export async function getWordPressProductBySlug(slug: string): Promise<WordPress
 }
 
 export async function getWordPressProductCategories(): Promise<WordPressProductCategory[]> {
-  const res = await fetch(`${API_URL}/product_category?per_page=100`, {
-    next: { revalidate: 60 },
+  const url = `${API_URL}/product_category?per_page=100`;
+
+  const res = await fetch(url, {
+    cache: "no-store",
   });
 
   if (!res.ok) {
-    throw new Error("Failed to fetch WordPress product categories");
+    const errorText = await res.text();
+
+    console.error("Failed WordPress categories fetch:", {
+      url,
+      status: res.status,
+      statusText: res.statusText,
+      errorText,
+    });
+
+    throw new Error(`Failed to fetch WordPress product categories: ${res.status}`);
   }
 
   return res.json() as Promise<WordPressProductCategory[]>;
