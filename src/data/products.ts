@@ -12,4 +12,5 @@ export type Product = {
   sku: string;
   tags: string[];
   images: string[];
+  whatsappMessage?: string;
 };

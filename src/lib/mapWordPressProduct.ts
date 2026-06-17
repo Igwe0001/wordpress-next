@@ -58,5 +58,6 @@ export function mapWordPressProduct(wpProduct: WordPressProduct): Product {
     sku: acf.sku || `PRODUCT-${wpProduct.id}`,
     tags: categoryData?.name ? [categoryData.name] : [],
     images,
+    whatsappMessage: acf.whatsapp_message ?? "",
   };
 }

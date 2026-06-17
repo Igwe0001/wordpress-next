@@ -8,6 +8,8 @@ import ProductTabs from "@/components/product/ProductTabs";
 import RelatedProducts from "@/components/product/RelatedProducts";
 import { mapWordPressProduct } from "@/lib/mapWordPressProduct";
 import { getWordPressMediaById, getWordPressProductBySlug } from "@/lib/wordpress";
+// import { createWhatsAppProductLink } from "@/lib/whatsapp";
+// import { FaWhatsapp } from "react-icons/fa";
 
 type ProductPageProps = {
   params: Promise<{
@@ -25,6 +27,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
   }
 
   const product = mapWordPressProduct(wpProduct);
+
+  // const whatsappLink = createWhatsAppProductLink({
+  //   name: product.name,
+  //   slug: product.slug,
+  //   price: product.price,
+  //   category: product.category,
+  // });
 
   if (typeof wpProduct.acf !== "undefined" && !Array.isArray(wpProduct.acf)) {
     const galleryId = wpProduct.acf.product_gallery;

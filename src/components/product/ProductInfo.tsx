@@ -3,13 +3,14 @@
 import { Star } from "lucide-react";
 import { Product } from "@/data/products";
 import { formatCurrency } from "@/lib/formatCurrency";
+import { createWhatsAppOrderLink } from "@/lib/whatsapp";
+
 
 type ProductInfoProps = {
   product: Product;
 };
 
 export default function ProductInfo({ product }: ProductInfoProps) {
-  const whatsappNumber = "2348012345678"; // CHANGE THIS
 
   const whatsappMessage = encodeURIComponent(
     `Hello, I want to order this product:
@@ -22,7 +23,7 @@ SKU: ${product.sku}
 Please provide more information.`,
   );
 
-  const whatsappLink = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
+const whatsappLink = createWhatsAppOrderLink(product);
 
   const displaySku = product.sku || "N/A";
   const displayTags = product.tags.length > 0 ? product.tags.join(", ") : "None";
